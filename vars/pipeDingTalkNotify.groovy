@@ -48,7 +48,7 @@ def sendMessage(msginfo="", msgaction, msgpic) {
     }
     def bodyJson  = String.format(bodyTmpl, bodyTitle, bodyText, msgURL, msgpic)
 
-    httpRequest contentType: 'APPLICATION_JSON_UTF8', httpMode: 'POST', quiet: true, requestBody: bodyJson, url: dingtalkAPI
+    //httpRequest contentType: 'APPLICATION_JSON_UTF8', httpMode: 'POST', quiet: true, requestBody: bodyJson, url: dingtalkAPI
 }
 
 @NonCPS
