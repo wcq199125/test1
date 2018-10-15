@@ -32,9 +32,9 @@ if (env.DEPLOY_ENV == "prod") {
     }
 }
 
-//pipeStage("maven") {
-//    pipeBuild.maven(config.app.build_cmd)
-//}
+pipeStage("maven") {
+    pipeBuild.maven(config.app.build_cmd)
+}
 
 pipeStage("docker") {
     buildArgs = """\

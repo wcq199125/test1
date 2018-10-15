@@ -1,5 +1,5 @@
 def call(name){
-    def jenkinsfilename = "file/Jenkinsfile"
+    def jenkinsfilename = "file/Jenkinsfilenew"
     def jenkinsfile = libraryResource(jenkinsfilename)
     def resource = libraryResource("config/business/${name}.yaml")
     def config = readYaml text: resource
