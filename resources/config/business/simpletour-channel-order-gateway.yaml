@@ -1,0 +1,46 @@
+### app config
+pipeline:
+  enabled: 'true'
+
+app:
+  name: simpletour-channel-order-gateway
+  build_label: maven
+  build_cmd: mvn clean package -B -U -Dmaven.test.skip=true
+  template: jar
+  namespace: "udev"
+  url_uat: uat.channel-order-gw.simpletour.com
+  url_prod: channel-order-gw.simpletour.com
+  url_path: "/"
+  runEnv: {}
+    # env: uat
+  runArgs: []
+  # - "-Dspring.profiles.active=local"
+
+### helm charts config
+replicaCount: 1
+image:
+  repository: hub.simpletour.com/udev/simpletour-channel-order-gateway
+  tag: latest
+  pullPolicy: Always
+  pullSecret: harbor-devops
+service:
+  name: simpletour-channel-order-gateway
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+  protocol: TCP
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - chart-example.local
+  annotations:
+    traefik.frontend.rule.type: PathPrefix
+    kubernetes.io/ingress.class: traefik
+  labels:
+    realm: internal  # internal|external
+resources:
+  limits:
+    # cpu: 1000m
+    memory: 5Gi
+probe: {}

@@ -1,0 +1,42 @@
+### app config
+pipeline:
+  enabled: 'true'
+
+app:
+  name: simpletour-dmc-web
+  build_label: maven
+  build_cmd: mvn clean package -B -U -Dmaven.test.skip=true -pl simpletour-dmc-web -am
+  template: war
+  namespace: "bdev"
+  url_uat: uat.dmc.simpletour.com
+  url_prod: dmc5.simpletour.com
+  url_path: "/"
+  runEnv: {}
+    # env: uat
+  runArgs: []
+  # - "-Dspring.profiles.active=local"
+
+### helm charts config
+replicaCount: 1
+image:
+  repository: hub.simpletour.com/bdev/simpletour-dmc-web
+  tag: latest
+  pullPolicy: Always
+  pullSecret: harbor-devops
+service:
+  name: simpletour-dmc-web
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+  protocol: TCP
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - chart-example.local
+  annotations:
+    traefik.frontend.rule.type: PathPrefix
+    kubernetes.io/ingress.class: traefik
+  labels:
+    realm: internal  # internal|external
+probe: {}

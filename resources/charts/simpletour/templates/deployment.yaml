@@ -1,0 +1,72 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "simpletour.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ template "simpletour.name" .  }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        release: {{ template "simpletour.name" .  }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      {{- if .Values.app.runArgs }}
+        args:
+      {{- range .Values.app.runArgs }}
+        - {{ . | quote}}
+      {{- end }}
+      {{- end }}
+        env:
+        - name: BUILD_ID
+          value: {{ .Values.app.build_id | default "0" | quote }}
+        {{- range $key, $value := .Values.app.runEnv }}
+        - name: {{ $key | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+        livenessProbe:
+          {{- if .Values.probe.type}}
+          httpGet:
+            path: {{ .Values.probe.path }}
+            port: {{ .Values.service.internalPort }}
+          {{- else}}
+          tcpSocket:
+            port: {{ .Values.service.internalPort }}
+          {{- end}}
+          initialDelaySeconds: 90
+          timeoutSeconds: 5
+        readinessProbe:
+          {{- if .Values.probe.type}}
+          httpGet:
+            path: {{ .Values.probe.path }}
+            port: {{ .Values.service.internalPort }}
+          {{- else}}
+          tcpSocket:
+            port: {{ .Values.service.internalPort }}
+          {{- end}}
+          initialDelaySeconds: 90
+          timeoutSeconds: 5
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+      imagePullSecrets:
+      - name: {{ .Values.image.pullSecret}}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

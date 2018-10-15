@@ -1,0 +1,42 @@
+### app config
+pipeline:
+  enabled: 'true'
+
+app:
+  name: simpletour-self-admin
+  build_label: maven
+  build_cmd: mvn clean package -B -U -Dmaven.test.skip=true
+  template: war
+  namespace: "udev"
+  url_uat: selfadmin.uat.simpletour.com
+  url_prod: selfadmin.simpletour.com
+  url_path: "/"
+  runEnv: {}
+    # env: uat
+  runArgs: []
+  # - "-Dspring.profiles.active=local"
+
+### helm charts config
+replicaCount: 1
+image:
+  repository: hub.simpletour.com/udev/simpletour-self-admin
+  tag: latest
+  pullPolicy: Always
+  pullSecret: harbor-devops
+service:
+  name: simpletour-self-admin
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+  protocol: TCP
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - chart-example.local
+  annotations:
+    traefik.frontend.rule.type: PathPrefix
+    kubernetes.io/ingress.class: traefik
+  labels:
+    realm: internal  # internal|external
+probe: {}

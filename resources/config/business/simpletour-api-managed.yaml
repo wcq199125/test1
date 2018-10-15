@@ -1,0 +1,42 @@
+### app config
+pipeline:
+  enabled: 'true'
+
+app:
+  name: simpletour-api-managed
+  build_label: maven
+  build_cmd: mvn clean package -B -U -Dmaven.test.skip=true -pl simpletour-api-managed -am
+  template: jar
+  namespace: "bdev"
+  url_uat: uat.api.managed.simpletour.com
+  url_prod: managed-api.simpletour.com
+  url_path: "/"
+  runEnv: {}
+    # env: uat
+  runArgs: []
+  # - "-Dspring.profiles.active=local"
+
+### helm charts config
+replicaCount: 1
+image:
+  repository: hub.simpletour.com/bdev/simpletour-api-managed
+  tag: latest
+  pullPolicy: Always
+  pullSecret: harbor-devops
+service:
+  name: simpletour-api-managed
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+  protocol: TCP
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - chart-example.local
+  annotations:
+    traefik.frontend.rule.type: PathPrefix
+    kubernetes.io/ingress.class: traefik
+  labels:
+    realm: internal  # internal|external
+probe: {}
