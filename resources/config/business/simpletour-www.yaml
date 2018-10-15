@@ -1,0 +1,47 @@
+### app config
+pipeline:
+  enabled: 'true'
+
+app:
+  name: simpletour-www
+  build_label: maven
+  build_cmd: mvn clean package -B -U -Dmaven.test.skip=true
+  template: war
+  namespace: "udev"
+  url_uat: uatwww.simpletour.com
+  url_prod: www.simpletour.com
+  url_path: "/"
+  # runEnv: {}
+    # env: uat
+  runEnv:
+    JAVA_OPTS: -Xms3g -Xmx10g
+  runArgs: []
+
+  # - "-Dspring.profiles.active=local"
+
+### helm charts config
+replicaCount: 1
+image:
+  repository: hub.simpletour.com/udev/simpletour-www
+  tag: latest
+  pullPolicy: Always
+  pullSecret: harbor-devops
+service:
+  name: simpletour-www
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+  protocol: TCP
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - chart-example.local
+  annotations:
+    traefik.frontend.rule.type: PathPrefix
+    kubernetes.io/ingress.class: traefik
+  labels:
+    realm: external  # internal|external
+probe:
+  type: httpGet
+  path: /
