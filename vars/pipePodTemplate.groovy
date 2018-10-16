@@ -14,7 +14,7 @@ def call(label, Closure body){
         }
     }
     if (label == "maven") {
-        podTemplate(name: 'jenkins-slave-maven', namespace: 'kube-system', idleMinutes: 30, containers: [
+        podTemplate(name: 'jenkins-slave-maven', lable: 'maven', namespace: 'kube-system', idleMinutes: 30, containers: [
             containerTemplate(name: 'maven', image: 'maven:3.5-alpine', command: 'cat', ttyEnabled: true),
             containerTemplate(name: 'docker', image: 'docker:17.03-dind', 
                 args: '--registry-mirror=https://registry.docker-cn.com -s=overlay2 --bip=172.30.1.1/24', privileged: true, ttyEnabled: true),
